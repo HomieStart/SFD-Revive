@@ -1,0 +1,214 @@
+	/*
+	<====================================================================> 
+	<====================== XHOMIE Code v0.2 ============================> 
+	<====================================================================>
+	<======= If you liked the XHOMIEREVIVE, you can contact me,   =======>
+	<=======      I will be delighted to attend thanks to         =======>
+	<=======       suggestions or ideas for new script :)         =======>
+	<====================================================================>
+	<================    Tr.x.Homie@gmail.com    ========================>
+	<================   © 2016 By FV of XHomie   ========================>
+	<====================================================================>*/
+	 public class User_Settings:Settings{public User_Settings(){
+	//<==================================================================>
+	//<=============< @ PLAYER/S SETTING >======================>
+		All_Players_To_Revive = 1			;// # if 1, revive all player die
+		
+		Player_Number_to_Revive = 0			;// # Number of player, example 0 is the Admin of server, 1 is the next user player on the match : only if All_Revive is 0
+		
+		Name_Of_Player_You_Want_Revive = "NameHere"	;// # name of the player you want revive : only if All_Revive is 0
+	//<=========================================================>
+	
+	//<=============< @ WEAPONS SETTING >=======================>
+			With_Weapons_After_Revived = 0		;//If 1, Player revived have the custom weapons	
+	/*<=============< # WEAPONS CUSTOM SETTING >================>*/Weapons = new WeaponItem[]{
+			// V V Put You weapons Here V V
+			
+			WeaponItem.MACHETE, 			//Don't Erased the ","
+			WeaponItem.SLOWMO_5 			//Recommended Put Weapons before WeaponItem.SLOWMO_5
+
+	/*<==========================================================>
+
+======================================================================
+Examples of Weapons:
+======================================================================
+WeaponItem.MACHETE,
+WeaponItem.BAT,
+WeaponItem.AXE,
+WeaponItem.HAMMER,
+WeaponItem.BATON,
+WeaponItem.KATANA,
+WeaponItem.PIPE,
+WeaponItem.PISTOL,
+WeaponItem.MAGNUM,
+WeaponItem.UZI,
+WeaponItem.PISTOL, 
+WeaponItem.FLAREGUN, 
+WeaponItem.REVOLVER, 
+WeaponItem.SILENCEDPISTOL, 
+WeaponItem.SILENCEDUZI,
+WeaponItem.SHOTGUN, 
+WeaponItem.TOMMYGUN, 
+WeaponItem.M60, 
+WeaponItem.SNIPER, 
+WeaponItem.SAWED_OFF,
+WeaponItem.BAZOOKA, 
+WeaponItem.GRENADE_LAUNCHER,
+WeaponItem.ASSAULT, 
+WeaponItem.CARBINE, 
+WeaponItem.FLAMETHROWER, 
+WeaponItem.SMG, 
+WeaponItem.SUB_MACHINEGUN,
+WeaponItem.GRENADES, 
+WeaponItem.MOLOTOVS,
+WeaponItem.MINES,
+WeaponItem.SLOWMO_5, 
+WeaponItem.SLOWMO_10, 
+WeaponItem.LAZER,
+======================================================================
+<=======================<XHCode>=====================================>
+*/
+		};
+		Default();
+		if(Player_Number_to_Revive >= 0){
+			PLAYER = Player_Number_to_Revive;
+		}
+		if(With_Weapons_After_Revived > 0){
+			WITH_WEAPONS = true;
+		}
+		if(All_Players_To_Revive > 0){
+			ALL_PLAYERS = true;
+		}else{
+			ALL_PLAYERS = false;
+		}
+		if(Name_Of_Player_You_Want_Revive != "NameHere")
+			NAME = Name_Of_Player_You_Want_Revive;
+		if(Weapons != null && Weapons.Length > 0){
+			WEAPONS = Weapons;
+		}
+	}
+
+
+	private int With_Weapons_After_Revived;
+	private int All_Players_To_Revive;
+	private int Player_Number_to_Revive;
+	private String Name_Of_Player_You_Want_Revive;
+	private WeaponItem[] Weapons;
+}
+
+public abstract class Settings{
+	protected static bool WITH_WEAPONS;
+	protected static bool ALL_PLAYERS;
+	protected static String NAME;
+	protected static WeaponItem[] WEAPONS;
+	protected static int PLAYER;
+
+	protected static void User(){
+		User_Settings usu = new User_Settings();
+	}
+
+	protected static void Default(){
+		if(WITH_WEAPONS == null)
+			WITH_WEAPONS = false;
+		if(ALL_PLAYERS == null)
+			ALL_PLAYERS = true;
+		if(NAME == null)
+			NAME = "";
+		PLAYER = 0;
+	}
+}
+
+public class XH_Revive : Settings{
+	public XH_Revive(){
+		User();
+	}
+
+	public void XH_Start(){
+		if(ALL_PLAYERS == null){
+			Default();
+		}
+		XH_Revive_In();
+	}
+
+	private void XH_Revive_In(){
+		bool chk = false;
+		int i = 0;
+		foreach(IUser Us in Game.GetActiveUsers()){
+			if(NAME == null || NAME == "" || NAME == "NameHere"){
+				if(!ALL_PLAYERS){
+					if(i == PLAYER){
+						if(ChkDPl(Us)){
+								ChkPl(Us);
+								if(!chk) chk = true;
+							}
+							break;
+					}
+				}else{
+					if(ChkDPl(Us)){
+						ChkPl(Us);
+						if(!chk) chk = true;
+					}
+				}
+			}else if(Us.Name == NAME){{
+				if(ChkDPl(Us)){ChkPl(Us);
+				if(!chk) chk = true;
+				}
+				break;
+			}
+			i++;
+		}
+	}
+		if(chk = false){
+			Game.RunCommand("/MSG XH Message: Player/s is/re Live or Not Found!");
+		}
+	}
+
+	private bool ChkDPl(IUser Us){
+		bool dpl = true;
+		foreach(IPlayer pl in Game.GetPlayers()){
+			if(pl.IsUser && !pl.IsDead && pl.GetUser().Name == Us.Name){
+				dpl = false;
+			}
+		}
+		return dpl;
+	}
+
+	private void ChkPl(IUser Us){
+		Random rand = new Random();
+		int x = 0;
+		IPlayer pl;
+		if(Game.GetObjectsByName("SpawnPlayer") != null){
+			x = rand.Next(Game.GetObjectsByName("SpawnPlayer").Length);
+			pl = Game.CreatePlayer(((IObject)Game.GetObjectsByName("SpawnPlayer")[x]).GetWorldPosition());
+		}else{
+			pl = Game.CreatePlayer(Vector2.Zero + new Vector2(0,100));}
+		if(Game.GetSingleObjectByCustomID("XH-Skin") != null){
+			x = Game.GetObjectsByCustomID("XH-Skin").Length;
+			x = rand.Next(0,x);
+			if(Game.GetObjectsByCustomID("XH-Skin")[x] != null && Game.GetObjectsByCustomID("XH-Skin")[x] is IObjectPlayerProfileInfo)
+				pl.SetProfile(((IObjectPlayerProfileInfo)Game.GetObjectsByCustomID("XH-Skin")[x]).GetProfile());
+		}
+		if(WITH_WEAPONS){
+			if(WEAPONS != null){
+				for(int z = 0;z<=WEAPONS.Length;z++){
+					if(WEAPONS[x] != null && WEAPONS[x] is WeaponItem)
+						pl.GiveWeaponItem(WEAPONS[x]);
+				}
+			}
+		}
+		pl.SetUser(Us);
+	}
+}
+
+private XH_Revive XHR;
+
+public void OnStartup(){
+	if(XHR == null){
+		XHR = new XH_Revive();
+	}
+	XHR.XH_Start();
+}
+	 /*<===============================================================>
+	                          XHomieRevive 0.2V                        
+	   <=========================<F-XHOMIE>============================>
+	   <===============<XHomieFunxLife for the Community>==============>*/
